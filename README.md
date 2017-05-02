@@ -52,7 +52,7 @@ All commands require authentication.
 
 ```ruby
 require 'ketra'
-Ketra.client.access_token = 'YOUR ACCESS TOKEN'
+Ketra.access_token = 'YOUR ACCESS TOKEN'
 Ketra.hub_serial = 'YOUR HUB SERIAL NUMBER'
 Ketra::Commands.activate_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
 ```
