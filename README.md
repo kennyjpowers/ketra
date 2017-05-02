@@ -41,7 +41,7 @@ access_token = Ketra.access_token
 #### Set Access Token Directly
 
 ```ruby
-Ketra.client.access_token = 'YOUR ACCESS TOKEN'
+Ketra.access_token = 'YOUR ACCESS TOKEN'
 ```
 
 ### Commands
