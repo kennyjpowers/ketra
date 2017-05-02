@@ -96,7 +96,7 @@ module Ketra
   end
 
   def self.access_token
-    client.access_token
+    client.access_token.token
   end
 
   private

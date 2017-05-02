@@ -32,8 +32,10 @@ In order to use this gem you will need to contact Ketra Support and get assigned
 require 'ketra'
 Ketra.client_id = 'YOUR CLIENT ID'
 Ketra.client_secret = 'YOUR CLIENT SECRET'
+Ketra.authorization_grant = :password
 credentials = { username: 'YOUR DESIGN STUDIO USERNAME', password: 'YOUR DESIGN STUDIO PASSWORD' }
-access_token = Ketra.authorize(credentials)
+Ketra.authorize(credentials)
+access_token = Ketra.access_token
 ```
 
 
