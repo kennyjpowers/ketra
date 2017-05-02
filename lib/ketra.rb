@@ -1,13 +1,17 @@
 require 'oauth2'
+require 'rest-client'
+#require 'byebug'
 
 require "ketra/version"
 require "ketra/ketra_client"
+require "ketra/commands"
 
 module Ketra
   class Error < RuntimeError; end
 
   class << self
     attr_writer :callback_url
+    attr_accessor :hub_serial
     #TODO add permission_scopes
   end
 
@@ -32,7 +36,6 @@ module Ketra
   end
 
   PRODUCTION_HOST = 'https://my.goketra.com'
-  API_VERSION = 'v4'
 
   # Set the environment, accepts :production (TODO add :sandbox environment).
   # Defaults to :production
@@ -66,18 +69,6 @@ module Ketra
   def self.authorization_grant
     @authorization_grant || :code
   end
-  
-  # Allow throwing API errors
-  def self.silent_errors=(bool)
-    unless [TrueClass, FalseClass].include?(bool.class)
-      raise(ArguementError, "Silent errors must be set to either true or false")
-    end
-    @silent_errors = bool
-  end
-
-  def self.silenet_errors
-    @silent_errors.nil? ? false : @silent_errors
-  end
 
   def self.callback_url
     @callback_url || 'urn:ietf:wg:oauth:2.0:oob'
@@ -96,10 +87,12 @@ module Ketra
   end
 
   def self.access_token
-    client.access_token.token
+    client.access_token.token if client.access_token
   end
 
-  private
+  def self.access_token=(token)
+    client.access_token = token
+  end
 
   def self.client
     @client ||= KetraClient.new
