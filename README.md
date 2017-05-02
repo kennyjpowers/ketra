@@ -1,8 +1,8 @@
 # Ketra
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ketra`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Description
 
-TODO: Delete this and the text above, and describe your gem
+The Ketra gem provides a friendly Ruby interface to the Ketra API
 
 ## Installation
 
@@ -22,7 +22,20 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+In order to use this gem you will need to contact Ketra Support and get assigned a client_id and client_secret
+
+### Authentication
+
+#### Password grant
+
+```ruby
+require 'ketra'
+Ketra.client_id = 'YOUR CLIENT ID'
+Ketra.client_secret = 'YOUR CLIENT SECRET'
+credentials = { username: 'YOUR DESIGN STUDIO USERNAME', password: 'YOUR DESIGN STUDIO PASSWORD' }
+access_token = Ketra.authorize(credentials)
+```
+
 
 ## Development
 
@@ -32,7 +45,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ketra. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kennyjpowers/ketra. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
 
 
 ## License
