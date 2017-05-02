@@ -38,6 +38,24 @@ Ketra.authorize(credentials)
 access_token = Ketra.access_token
 ```
 
+#### Set Access Token Directly
+
+```ruby
+Ketra.client.access_token = 'YOUR ACCESS TOKEN'
+```
+
+### Commands
+
+All commands require authentication.
+
+#### Activate Button
+
+```ruby
+require 'ketra'
+Ketra.client.access_token = 'YOUR ACCESS TOKEN'
+Ketra.hub_serial = 'YOUR HUB SERIAL NUMBER'
+Ketra::Commands.activate_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
+```
 
 ## Development
 
