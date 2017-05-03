@@ -1,5 +1,7 @@
 # Ketra
 
+[![Gem Version](https://badge.fury.io/rb/ketra.png)](https://badge.fury.io/rb/ketra)
+
 ## Description
 
 The Ketra gem provides a friendly Ruby interface to the Ketra API
