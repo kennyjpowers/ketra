@@ -15,6 +15,10 @@ module Ketra
     #TODO add permission_scopes
   end
 
+  def self.callback_url
+    @callback_url || 'urn:ietf:wg:oauth:2.0:oob'
+  end
+
   # Make Ketra.client_id and Ketra.client_secret global but also local to threads
 
   def self.client_id
@@ -36,16 +40,16 @@ module Ketra
   end
 
   PRODUCTION_HOST = 'https://my.goketra.com'
+  TEST_HOST = 'https://internal-my.goketra.com'
 
   # Set the environment, accepts :production (TODO add :sandbox environment).
   # Defaults to :production
   # will raise an exception when set to an unrecognized environment
   def self.environment=(env)
-    unless [:production].include?(env)
-      raise(ArguementError, "environment must be set to :production")
+    unless [:production, :test].include?(env)
+      raise(ArgumentError, "environment must be set to :production or :test")
     end
     @environment = env
-    @host = PRODUCTION_HOST
   end
 
   def self.environment
@@ -53,7 +57,7 @@ module Ketra
   end
 
   def self.host
-    @host || PRODUCTION_HOST
+    @environment == :production ? PRODUCTION_HOST : TEST_HOST
   end
 
   # Set the authorization grant type
@@ -68,10 +72,6 @@ module Ketra
   
   def self.authorization_grant
     @authorization_grant || :code
-  end
-
-  def self.callback_url
-    @callback_url || 'urn:ietf:wg:oauth:2.0:oob'
   end
 
   def self.authorization_url
