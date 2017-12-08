@@ -27,6 +27,7 @@ describe Ketra do
 
   it "should only create a client once" do
     first_client = subject.client
+    expect(first_client).to_not be nil
     expect(subject.client).to eq(first_client)
   end
   
