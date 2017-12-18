@@ -42,15 +42,21 @@ module Ketra
       unless Ketra.authorization_grant == :code
         raise(NotImplementedError, "authorization url is only for grant type :code")
       end
-      client.auth_code.authorize_url(:redirect_uri => Ketra.callback_url)
+      auth_client.auth_code.authorize_url(:redirect_uri => Ketra.callback_url)
     end
 
     def authorize(credentials)
       case Ketra.authorization_grant
       when :code
-        @access_token ||= auth_client.auth_code.get_token(credentials[:authorization_code], :redirect_uri => Ketra.callback_url)
+        if credentials[:authorization_code].nil?
+          raise(ArgumentError, ":code credentials should include :authorization_code")
+        end
+        self.access_token ||= auth_client.auth_code.get_token(credentials[:authorization_code], :redirect_uri => Ketra.callback_url)
       when :password
-        @access_token ||= auth_client.password.get_token(credentials[:username], credentials[:password])
+        if credentials[:username].nil? or credentials[:password].nil?
+          raise(ArgumentError, ":password credentials should include :username and :password")
+        end
+        self.access_token ||= auth_client.password.get_token(credentials[:username], credentials[:password])
       end
     end
 

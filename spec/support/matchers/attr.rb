@@ -96,7 +96,7 @@ RSpec::Matchers.define :only_accept_valid_symbols_for do |field, values|
       random_string = Random.new.bytes(random_length)
       random_sym = random_string.to_sym
     end
-    expect{ subject.environment = random_sym }.to raise_error(ArgumentError)
+    expect{ object_instance.send("#{field}=", random_sym) }.to raise_error(ArgumentError)
   end
 
   failure_message do |object_instance|
