@@ -1,63 +1,93 @@
 require 'spec_helper'
 
 describe Ketra::KetraClient do
-  subject { Ketra::KetraClient.new }
-  it "should accept a string for an access token and return a correct OAuth2 Access Token object" do
+  subject { Ketra.client }
+  it "should accept a string for an access token and create OAuth2 Access Token object" do
     test_token = 'token'
     subject.access_token = test_token
     expect(subject.access_token).to be_instance_of(OAuth2::AccessToken)
     expect(subject.access_token.token).to eql(test_token)
+    subject.instance_variable_set("@access_token", nil)
   end
 
-  it { should have_default(:hub_discovery_mode, :cloud) }
-  it { should only_accept_valid_symbols_for(:hub_discovery_mode, [:cloud]) }
+  it { should have_configurable_field :hub_discovery_mode }
+  it { should have_default :hub_discovery_mode, :cloud }
 
-  it { should have_default(:api_mode, :local) }
-  it { should only_accept_valid_symbols_for(:api_mode, [:local]) }
+  it { should have_configurable_field :api_mode }
+  it { should have_default :api_mode, :local }
 
-  context "when authorization grant is :code" do
-    before(:example) do
-      allow(Ketra).to receive(:authorization_grant).and_return(:code)
+  it "should have authorization url" do
+    expect(subject.authorization_url).to_not be_nil
+  end
+
+  context "before setting Ketra hub serial" do
+    it "calling get should raise an error" do
+      expect { subject.get "testing" }.to raise_error(RuntimeError)
     end
-    it "should return a valid authorization_url" do
-      expect(subject.authorization_url).to_not be_nil
-      expect(subject.authorization_url).to be_url
-    end
-    it "should use :authorization_code credential to get a token" do
-      auth_client_double = instance_double("OAuth2::Client")
-      auth_code_double = instance_double("OAuth2::Strategy::AuthCode")
-      allow(auth_code_double).to receive(:get_token).and_return("token")
-      allow(auth_client_double).to receive(:auth_code).and_return(auth_code_double)
-      allow(OAuth2::Client).to receive(:new).and_return(auth_client_double)
-      credentials = {}
-      expect { subject.authorize(credentials) }.to raise_error(ArgumentError)
-      credentials = { authorization_code: "test code"}
-      expect(auth_code_double).to receive(:get_token).with("test code", { redirect_uri: Ketra.callback_url })
-      subject.authorize(credentials)
-      expect(subject.access_token).to_not be_nil
+
+    it "calling post should raise an error" do
+      expect { subject.post "testing" }.to raise_error(RuntimeError)
     end
   end
 
-  context "when Ketra.authorization_grant is :password" do
-    before(:example) do
-      allow(Ketra).to receive(:authorization_grant).and_return(:password)
+  context "after setting Ketra hub serial" do
+    before(:each) do
+      Ketra.hub_serial = "KP00000000"
     end
-    it "should raise error for authotization_url" do
-      expect { subject.authorization_url }.to raise_error(NotImplementedError)
+    context "when hub discovery mode is set wrong" do
+      before(:each) do
+        subject.hub_discovery_mode = :wrong
+      end
+      # it "calling get should raise an error" do
+      #   expect { subject.get "testing" }.to raise_error(RuntimeError)
+      # end
+      
+      # it "calling post should raise an error" do
+      #   expect { subject.post "testing" }.to raise_error(RuntimeError)
+      # end
     end
 
-    it "should use :username and :password credentials to get a token" do
-      auth_client_double = instance_double("OAuth2::Client")
-      password_double = instance_double("OAuth2::Strategy::Password")
-      allow(password_double).to receive(:get_token).and_return("token")
-      allow(auth_client_double).to receive(:password).and_return(password_double)
-      allow(OAuth2::Client).to receive(:new).and_return(auth_client_double)
-      credentials = {}
-      expect { subject.authorize(credentials) }.to raise_error(ArgumentError)
-      credentials = { username: "test user", password: "password" }
-      expect(password_double).to receive(:get_token).with("test user", "password")
-      subject.authorize(credentials)
-      expect(subject.access_token).to_not be_nil
+    context "when hub discovery mode is :cloud" do
+      before(:each) do
+        subject.hub_discovery_mode = :cloud
+      end
+      context "when hub is not discoverable" do
+        # it "calling get should raise an error" do
+        #   expect { subject.get "testing" }.to raise_error(RuntimeError)
+        # end
+        
+        # it "calling post should raise an error" do
+        #   expect { subject.post "testing" }.to raise_error(RuntimeError)
+        # end
+      end
+      context "when hub is discoverable" do
+        before(:each) do
+          Ketra.environment = :production
+          empty_success_response_double = instance_double("OAuth2::Response")
+          allow(empty_success_response_double).to receive(:status) { 200 }
+
+          discovery_resp_double = instance_double("OAuth2::Response")
+          allow(discovery_resp_double).to receive(:parsed) do
+            hash = { "content" =>
+                     [
+                       { "serial_number" => "KP00000000", "internal_ip" => "1.1.1.1"}
+                     ]
+                   }
+          end
+          allow_any_instance_of(OAuth2::Client).to receive(:request) { empty_success_response_double }
+          allow_any_instance_of(OAuth2::Client).to receive(:request).with(:get,
+                                                          "#{Ketra.host}/api/n4/v1/query") do
+            discovery_resp_double
+          end
+        end
+        it "calling get should raise an error" do
+          expect { subject.get "testing" }.to raise_error(NoMethodError)
+        end
+        
+        it "calling post should raise an error" do
+          expect { subject.post "testing" }.to raise_error(NoMethodError)
+        end
+      end
     end
-  end  
+  end
 end
