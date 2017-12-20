@@ -3,7 +3,7 @@ require 'rest-client'
 #require 'byebug'
 
 require "ketra/version"
-require "ketra/ketra_client"
+require "ketra/client"
 require "ketra/commands"
 
 module Ketra

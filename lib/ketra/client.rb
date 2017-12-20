@@ -53,15 +53,14 @@ module Ketra
       
     def get(endpoint, params = {})
       @access_token.get url(endpoint),
-                        { params: params }
+                        :params => params 
     end
     
-    def post(endpoint, body_params={})
-      @access_token.get url(endpoint),
-                        {
-                          body: JSON.generate(body_params),
-                          headers: { 'Content-Type' => 'application/json' }
-                        }
+    def post(endpoint, params={})
+      @access_token.post url(endpoint),
+                         :body => JSON.generate(params),
+                         :headers => { 'Content-Type' => 'application/json' }
+
     end
     
     private
@@ -93,7 +92,7 @@ module Ketra
     end
 
     def discover_hub(serial_number)
-      case hub_discovery_mode
+      case options[:hub_discovery_mode]
       when :cloud
         cloud_discovery(serial_number)
       else
@@ -106,7 +105,7 @@ module Ketra
     end
     
     def perform_cloud_hub_discovery(serial_number)
-      response = @auth_client.request :get, "#{Ketra.host}/api/n4/v1/query"
+      response = @auth_client.request :get, "#{host}/api/n4/v1/query"
       info = response.parsed["content"].detect { |h| h["serial_number"] == serial_number }
       raise RuntimeError, "Could not discover hub with serial: #{serial_number}" if info.nil?
       info["internal_ip"]

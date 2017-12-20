@@ -106,6 +106,71 @@ describe Ketra::Client do
       expect(first_client).to be subject.auth_client
     end
   end
+
+  context "before valid authentication" do
+    %w[get post].each do |request_type|
+      it "##{request_type} raises a NoMethodError" do
+        expect { subject.send(request_type, '') }.to raise_error(NoMethodError)
+      end
+    end
+  end
+  context "after authenticating" do
+    before(:each) do
+      subject.options[:authorization_mode] = :token
+      subject.authorize(:token => 'valid token')
+    end
+    context "when the hub is not discoverable" do
+      %w[get post].each do |request_type|
+        it "##{request_type} raises RuntimeError" do
+          expect { subject.send(request_type, '') }.to raise_error(RuntimeError)
+        end
+      end
+    end
+    context "when the hub is discoverable" do
+      let(:parsed_discovery_resp) do
+        response_hash = { "content" =>
+                          [
+                            { "serial_number" => "KP00000000", "internal_ip" => "1.1.1.1"}
+                          ]
+                        }
+      end
+      let(:test_endpoint_resp_double) { instance_double(OAuth2::Response) }
+      let(:test_params) { { 'a' => 1, 'b' => 2 } }
+      let(:test_get_resp_double) { instance_double(OAuth2::Response) }
+      let(:test_post_resp_double) { instance_double(OAuth2::Response) }
+      before(:each) do
+        subject.options[:hub_serial] = 'KP00000000'
+        discovery_resp_double = instance_double(OAuth2::Response)          
+        allow(discovery_resp_double).to receive(:parsed) { parsed_discovery_resp }
+        
+        allow_any_instance_of(OAuth2::Client).to receive(:request).with(:get, /.*query/) { discovery_resp_double }
+
+        allow_any_instance_of(OAuth2::Client).to receive(:request).with(anything(), /testendpoint/, anything()) { test_endpoint_resp_double }
+      end
+      %w[get post].each do |request_type|
+        it "##{request_type} appends the endpoint to the base url" do
+          expect(subject.send(request_type, 'testendpoint')).to be test_endpoint_resp_double
+        end
+      end
+
+      it "#get includes all the params given as query params" do
+        allow_any_instance_of(OAuth2::AccessToken).to receive(:get).with(/.*testget/, hash_including(:params => test_params)) do
+          test_get_resp_double
+        end
+        expect(subject.get 'testget', test_params).to be(test_get_resp_double)          
+      end
+
+      it "#post sets Content-Type header to application/json" do
+        allow_any_instance_of(OAuth2::AccessToken).to receive(:post).with(anything(), hash_including(:headers => { 'Content-Type' => 'application/json' })) { test_post_resp_double }
+        expect(subject.post '').to be(test_post_resp_double)
+      end
+
+      it "#post serializes all params given into json as the body" do
+        allow_any_instance_of(OAuth2::AccessToken).to receive(:post).with(anything(), hash_including(:body => JSON.generate(test_params))) { test_post_resp_double }
+        expect(subject.post '', test_params).to be(test_post_resp_double)
+      end
+    end
+  end
 end
     
   
