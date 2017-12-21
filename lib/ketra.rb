@@ -1,4 +1,5 @@
 require 'oauth2'
+require 'addressable/uri'
 
 require "ketra/version"
 require "ketra/client"

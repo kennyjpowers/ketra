@@ -1,6 +1,3 @@
-require 'addressable'
-require 'byebug'
-
 module Ketra
   class Client
     PRODUCTION_HOST = 'https://my.goketra.com'
@@ -37,6 +34,7 @@ module Ketra
         @access_token = auth_client.auth_code.get_token(credentials[:authorization_code],
                                                         :redirect_uri => options[:redirect_uri])
       else :password
+        byebug
         @access_token = auth_client.password.get_token(credentials[:username],
                                                        credentials[:password])
       end
