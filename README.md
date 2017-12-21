@@ -66,6 +66,7 @@ Ketra::Commands.push_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
 Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
 Ketra::Commands.keypads
 Ketra::Commands.groups
+```
 
 
 ## Development
