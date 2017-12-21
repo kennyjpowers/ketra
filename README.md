@@ -14,7 +14,7 @@ Add this line to your application's Gemfile:
 gem 'ketra'
 ```
 
-NOTE: versions >= 0.3.0 is only supported for use with Ketra N4 Hubs with 1.15+ firmware
+NOTE: versions 0.3.0+ are only supported for use with Ketra N4 Hubs with 1.15+ firmware
 
 And then execute:
 
