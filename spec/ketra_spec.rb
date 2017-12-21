@@ -6,11 +6,13 @@ describe Ketra do
   end
 
   subject { Ketra }
-  it { should have_configurable_field :hub_serial }
-  
-  it { should have_configurable_field :client_id }
-  
-  it { should have_configurable_field :client_secret }
+
+  %w[hub_serial client_id client_secret].each do |field|
+    it "has configurable field #{field}" do
+      expect(subject).to respond_to(field)
+      expect(subject).to respond_to("#{field}=") 
+    end
+  end
 
   it "should only create a client once" do
     first_client = subject.client
