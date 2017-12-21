@@ -1,3 +1,4 @@
+require 'addressable'
 require 'byebug'
 
 module Ketra
@@ -7,7 +8,7 @@ module Ketra
     LOCAL_ENDPOINT_PREFIX = 'ketra.cgi/api/v1'
 
     attr_accessor :options
-    attr_reader :id, :secret
+    attr_reader :id, :secret, :access_token
 
     def initialize(id, secret, options = {}, &block)
       opts = options.dup 
@@ -46,21 +47,23 @@ module Ketra
     def auth_client
       @auth_client ||= OAuth2::Client.new(Ketra.client_id,
                                           Ketra.client_secret,
-                                          { :site => host })
+                                          :site => host,
+                                          :ssl => { :verify => false })
     end
 
     # Requests
       
     def get(endpoint, params = {})
-      @access_token.get url(endpoint),
-                        :params => params 
+      JSON.parse access_token.get(url(endpoint), :params => params).body
     end
     
-    def post(endpoint, params={})
-      @access_token.post url(endpoint),
-                         :body => JSON.generate(params),
-                         :headers => { 'Content-Type' => 'application/json' }
-
+    def post(endpoint, params = {})
+      internal_params = params.dup
+      resp = access_token.post url(endpoint),
+                               :params => internal_params.delete(:query_params),
+                               :body => JSON.generate(internal_params),
+                               :headers => { 'Content-Type' => 'application/json' }
+      JSON.parse resp.body
     end
     
     private
@@ -77,10 +80,11 @@ module Ketra
     def url(endpoint)
       case options[:api_mode]
       when :local
-        "#{local_url}/#{endpoint}"
+        url = "#{local_url}/#{endpoint}"
       else
-        "#{local_url}/#{endpoint}"
+        url = "#{local_url}/#{endpoint}"
       end
+      Addressable::URI.encode(url)
     end
     
     def local_url
@@ -105,7 +109,7 @@ module Ketra
     end
     
     def perform_cloud_hub_discovery(serial_number)
-      response = @auth_client.request :get, "#{host}/api/n4/v1/query"
+      response = auth_client.request :get, "#{host}/api/n4/v1/query"
       info = response.parsed["content"].detect { |h| h["serial_number"] == serial_number }
       raise RuntimeError, "Could not discover hub with serial: #{serial_number}" if info.nil?
       info["internal_ip"]
