@@ -1,6 +1,7 @@
 # Ketra
 
 [![Gem Version](https://badge.fury.io/rb/ketra.png)](https://badge.fury.io/rb/ketra)
+[![Build Status](https://travis-ci.org/kennyjpowers/ketra.svg?branch=master)](https://travis-ci.org/kennyjpowers/ketra)
 [![Coverage Status](https://coveralls.io/repos/github/kennyjpowers/ketra/badge.svg?branch=master)](https://coveralls.io/github/kennyjpowers/ketra?branch=master)
 
 ## Description
