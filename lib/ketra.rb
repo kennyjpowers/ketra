@@ -1,10 +1,8 @@
 require 'oauth2'
-require 'rest-client'
-#require 'byebug'
 
-require "./ketra/version"
-require "./ketra/client"
-require "./ketra/commands"
+require "ketra/version"
+require "ketra/client"
+require "ketra/commands"
 
 module Ketra
   class Error < RuntimeError; end
