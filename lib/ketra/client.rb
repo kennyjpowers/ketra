@@ -7,7 +7,7 @@ module Ketra
     attr_accessor :options
     attr_reader :id, :secret, :access_token
 
-    def initialize(id, secret, options = {}, &block)
+    def initialize(id, secret, options = {})
       opts = options.dup 
       @id = id
       @secret = secret
@@ -15,7 +15,6 @@ module Ketra
                   :authorization_mode => :password,
                   :redirect_uri       => 'urn:ietf:wg:oauth:2.0:oob',
                   :hub_discovery_mode => :cloud,
-                  :connection_build   => block,
                   :api_mode           => :local}.merge(opts)
                   
     end
@@ -73,34 +72,26 @@ module Ketra
         PRODUCTION_HOST
       end
     end
-
+    
     def url(endpoint)
-      case options[:api_mode]
-      when :local
-        url = "#{local_url}/#{endpoint}"
-      else
-        url = "#{local_url}/#{endpoint}"
-      end
+      #TODO implement additional api modes
+      url = "#{local_url}/#{endpoint}"
       Addressable::URI.encode(url)
     end
     
     def local_url
       "https://#{hub_ip}/#{LOCAL_ENDPOINT_PREFIX}"
     end
-
+    
     def hub_ip
       @hub_ip || discover_hub(options[:hub_serial])
     end
-
+    
     def discover_hub(serial_number)
-      case options[:hub_discovery_mode]
-      when :cloud
-        cloud_discovery(serial_number)
-      else
-        cloud_discovery(serial_number)
-      end
+      #TODO implement additional hub discovery modes
+      cloud_discovery(serial_number)
     end
-
+    
     def cloud_discovery(serial_number)
       @hub_ip ||= perform_cloud_hub_discovery(serial_number)
     end

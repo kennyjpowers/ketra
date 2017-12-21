@@ -15,11 +15,14 @@ describe Ketra::Client do
       expect(subject.options[:server]).to be :production
     end
     
-    it "allows :production/:test for server option" do
+    it "allows :production/:test for server option to configure the host site for auth" do
       client = Ketra::Client.new('qwe', 'asd', :server => :production)
       expect(client.options[:server]).to be :production
+      production_host = client.auth_client.site
       client = Ketra::Client.new('qwe', 'asd', :server => :test)
       expect(client.options[:server]).to be :test
+      test_host = client.auth_client.site
+      expect(production_host).to_not be test_host
     end
     
     it "allows changing the server option" do
