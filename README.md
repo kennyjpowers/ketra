@@ -36,28 +36,38 @@ In order to use this gem you will need to contact Ketra Support and get assigned
 require 'ketra'
 Ketra.client_id = 'YOUR CLIENT ID'
 Ketra.client_secret = 'YOUR CLIENT SECRET'
-Ketra.authorization_grant = :password
 credentials = { username: 'YOUR DESIGN STUDIO USERNAME', password: 'YOUR DESIGN STUDIO PASSWORD' }
-Ketra.authorize(credentials)
-access_token = Ketra.access_token
+Ketra.client.authorize(:username => 'YOUR DESIGN STUDIO USERNAME', :password => 'YOUR DESIGN STUDIO PASSWORD)
+access_token = Ketra.client.access_token
 ```
 
 #### Set Access Token Directly
 
 ```ruby
-Ketra.access_token = 'YOUR ACCESS TOKEN'
+Ketra.client.options[:authorization_mode] = :token
+Ketra.client.authorize(:token => 'YOUR ACCESS TOKEN')
 ```
 
 ### Commands
 
 All commands require authentication.
 
-#### Activate Button
+#### Keypad Buttons
 
 ```ruby
-Ketra.hub_serial = 'YOUR HUB SERIAL NUMBER'
+Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
 Ketra::Commands.activate_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
+Ketra::Commands.deactivate_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
+Ketra::Commands.push_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
 ```
+
+#### Queries
+
+```ruby
+Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
+Ketra::Commands.keypads
+Ketra::Commands.groups
+
 
 ## Development
 
