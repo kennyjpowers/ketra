@@ -1,4 +1,7 @@
 module Ketra
+
+  # The Ketra::Client class is used for gaining an Access Token for 
+  # authorization and performing GET and POST requests to the Ketra API
   class Client
     PRODUCTION_HOST = 'https://my.goketra.com'
     TEST_HOST = 'https://internal-my.goketra.com'
@@ -7,12 +10,21 @@ module Ketra
     attr_accessor :options
     attr_reader :id, :secret, :access_token
 
+    # Instantiate a new Ketra Client using the
+    # Client ID and Client Secret registered to your application.
+    #
+    # @param [String] id the Client ID value
+    # @param [String] secret the Client Secret value
+    # @param [Hash] options the options to create the client with
+    # @options options [Symbol] :server (:production) which authorization server to use to get an Access Token (:production or :test)
+    # @options options [String] :redirect_uri the redirect uri for the authorization code OAuth2 grant type
+    # @options options [String] :hub_serial the serial number of the Hub to communicate with
+
     def initialize(id, secret, options = {})
       opts = options.dup 
       @id = id
       @secret = secret
       @options = {:server             => :production,
-                  :authorization_mode => :password,
                   :redirect_uri       => 'urn:ietf:wg:oauth:2.0:oob',
                   :hub_discovery_mode => :cloud,
                   :api_mode           => :local}.merge(opts)
@@ -21,18 +33,25 @@ module Ketra
     
     # Authorization
 
+    # The authorize endpoint URL of the Ketra OAuth2 provider
     def authorization_url
       auth_client.auth_code.authorize_url(:redirect_uri => options[:redirect_uri])
     end
 
+    # Sets the access token based on the authorization_mode option
+    #
+    # @param [Hash] credentials
+    # @options credentials [String] :token previously gained access token value
+    # @options credentials [String] :authorization_code code value from the Ketra OAuth2 provider
+    # @options credentials [String] :username Ketra Desiadgn Studio username
+    # @options credentials [String] :password Design Studio password
     def authorize(credentials)
-      case options[:authorization_mode]
-      when :token
+      if credentials.key?(:token)
         @access_token = OAuth2::AccessToken.new(auth_client, credentials[:token])
-      when :code
+      elsif credentials.key?(:authorization_code)
         @access_token = auth_client.auth_code.get_token(credentials[:authorization_code],
                                                         :redirect_uri => options[:redirect_uri])
-      else :password
+      elsif credentials.key?(:username)
         @access_token = auth_client.password.get_token(credentials[:username],
                                                        credentials[:password])
       end
