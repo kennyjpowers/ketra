@@ -3,8 +3,11 @@ module Ketra
   # The Ketra::Client class is used for gaining an Access Token for 
   # authorization and performing GET and POST requests to the Ketra API
   class Client
+    # Production Host base url
     PRODUCTION_HOST = 'https://my.goketra.com'
+    # Test Host base url
     TEST_HOST = 'https://internal-my.goketra.com'
+    # Endpoint prefix to be attached to the base url before the rest of the endpoint
     LOCAL_ENDPOINT_PREFIX = 'ketra.cgi/api/v1'
 
     attr_accessor :options
@@ -16,10 +19,9 @@ module Ketra
     # @param [String] id the Client ID value
     # @param [String] secret the Client Secret value
     # @param [Hash] options the options to create the client with
-    # @options options [Symbol] :server (:production) which authorization server to use to get an Access Token (:production or :test)
-    # @options options [String] :redirect_uri the redirect uri for the authorization code OAuth2 grant type
-    # @options options [String] :hub_serial the serial number of the Hub to communicate with
-
+    # @option options [Symbol] :server (:production) which authorization server to use to get an Access Token (:production or :test)
+    # @option options [String] :redirect_uri the redirect uri for the authorization code OAuth2 grant type
+    # @option options [String] :hub_serial the serial number of the Hub to communicate with
     def initialize(id, secret, options = {})
       opts = options.dup 
       @id = id
@@ -34,17 +36,21 @@ module Ketra
     # Authorization
 
     # The authorize endpoint URL of the Ketra OAuth2 provider
+    #
+    # @return [String] authorize endpoint URL
     def authorization_url
       auth_client.auth_code.authorize_url(:redirect_uri => options[:redirect_uri])
     end
 
-    # Sets the access token based on the authorization_mode option
+    # Sets the access token, must supply either the access token, the authorization code,
+    # or the Design Studio Username and Password 
     #
     # @param [Hash] credentials
-    # @options credentials [String] :token previously gained access token value
-    # @options credentials [String] :authorization_code code value from the Ketra OAuth2 provider
-    # @options credentials [String] :username Ketra Desiadgn Studio username
-    # @options credentials [String] :password Design Studio password
+    # @option credentials [String] :token previously gained access token value
+    # @option credentials [String] :authorization_code code value from the Ketra OAuth2 provider
+    # @option credentials [String] :username Ketra Desiadgn Studio username
+    # @option credentials [String] :password Design Studio password
+    # @return [OAuth2::AccessToken] Access Token object
     def authorize(credentials)
       if credentials.key?(:token)
         @access_token = OAuth2::AccessToken.new(auth_client, credentials[:token])
@@ -58,7 +64,8 @@ module Ketra
     end
 
     # OAuth Client
-
+    #
+    # @return [OAuth2::Client] oauth2 client
     def auth_client
       @auth_client ||= OAuth2::Client.new(Ketra.client_id,
                                           Ketra.client_secret,
@@ -66,12 +73,21 @@ module Ketra
                                           :ssl => { :verify => false })
     end
 
-    # Requests
-      
+    # performs a GET Request using the OAuth2 Access Token and parses the result as JSON
+    #
+    # @param [String] endpoint to be appended to the base url
+    # @param [Hash] params to be used as query params for the request
+    # @return [Hash] deserialized response hash
     def get(endpoint, params = {})
       JSON.parse access_token.get(url(endpoint), :params => params).body
     end
-    
+
+    # performs a POST request using the OAuth2 Access Token and parses the result as JSON
+    #
+    # @param [String] endpoint to be appended to the base url
+    # @param [Hash] params except :query_params will be serialized into JSON and supplied as the body of the request
+    # @option params [Hash] :query_params to be used as the query params for the request
+    # @return [Hash] deserialized response hash
     def post(endpoint, params = {})
       internal_params = params.dup
       resp = access_token.post url(endpoint),

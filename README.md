@@ -45,13 +45,12 @@ access_token = Ketra.client.access_token
 #### Set Access Token Directly
 
 ```ruby
-Ketra.client.options[:authorization_mode] = :token
 Ketra.client.authorize(:token => 'YOUR ACCESS TOKEN')
 ```
 
 ### Commands
 
-All commands require authentication.
+All commands require authentication and having the :hub_serial option set.
 
 #### Keypad Buttons
 

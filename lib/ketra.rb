@@ -10,7 +10,7 @@ require "ketra/commands"
 # Author::   Kenneth Priester (github: kennyjpowers)
 # License::  Available as open source under the terms of the MIT License (http://opensource.org/licenses/MIT)
 
-# This module is used to set the client id, client secret, and hub serial number
+# This module is used to set the client id, client secret
 # and provide access to the actual client.
 module Ketra
 
