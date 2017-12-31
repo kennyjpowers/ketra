@@ -32,10 +32,6 @@ describe Ketra::Client do
       expect(client.options[:server]).to be :production
     end
     
-    it "defaults authorization_mode option to :password" do
-      expect(subject.options[:authorization_mode]).to be :password
-    end
-    
     it "allows :password/:code/:token for authorization_mode option" do
       client = Ketra::Client.new('qwe', 'asd', :authorization_mode => :password)
       expect(client.options[:authorization_mode]).to be :password

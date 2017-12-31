@@ -7,7 +7,7 @@ describe Ketra do
 
   subject { Ketra }
 
-  %w[hub_serial client_id client_secret].each do |field|
+  %w[client_id client_secret].each do |field|
     it "has configurable field #{field}" do
       expect(subject).to respond_to(field)
       expect(subject).to respond_to("#{field}=") 
