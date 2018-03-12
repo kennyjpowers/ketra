@@ -5,10 +5,13 @@ module Ketra
   class Client
     # Production Host base url
     PRODUCTION_HOST = 'https://my.goketra.com'
+    REMOTE_PRODUCTION_HOST = 'https://api.goketra.com'
     # Test Host base url
     TEST_HOST = 'https://internal-my.goketra.com'
+    REMOTE_TEST_HOST = 'https://internal-api.goketra.com'
     # Endpoint prefix to be attached to the base url before the rest of the endpoint
     LOCAL_ENDPOINT_PREFIX = 'ketra.cgi/api/v1'
+    REMOTE_ENDPOINT_PREFIX = 'webAPI/api/v1'
 
     attr_accessor :options
     attr_reader :id, :secret, :access_token
@@ -107,15 +110,34 @@ module Ketra
         PRODUCTION_HOST
       end
     end
+
+    def remote_host
+      case options[:server]
+      when :test
+        REMOTE_TEST_HOST
+      else
+        REMOTE_PRODUCTION_HOST
+      end
+    end
     
     def url(endpoint)
       #TODO implement additional api modes
-      url = "#{local_url}/#{endpoint}"
+      case options[:api_mode]
+      when :remote
+        base = remote_url
+      else
+        base = local_url
+      end
+      url = "#{base}/#{endpoint}"
       Addressable::URI.encode(url)
     end
     
     def local_url
       "https://#{hub_ip}/#{LOCAL_ENDPOINT_PREFIX}"
+    end
+
+    def remote_url
+      "#{remote_host}/#{options[:installation_id]}/#{options[:hub_serial]}/#{REMOTE_ENDPOINT_PREFIX}"
     end
     
     def hub_ip
