@@ -22,9 +22,11 @@ module Ketra
     # @param [String] id the Client ID value
     # @param [String] secret the Client Secret value
     # @param [Hash] options the options to create the client with
-    # @option options [Symbol] :server (:production) which authorization server to use to get an Access Token (:production or :test)
+    # @option options [Symbol] :server (:production) which authorization server to use (:production or :test)
     # @option options [String] :redirect_uri the redirect uri for the authorization code OAuth2 grant type
     # @option options [String] :hub_serial the serial number of the Hub to communicate with
+    # @option options [Symbol] :api_mode (:local) which api mode to use to communicate with the hub (:local or :remote)
+    # @option options [String] :installation_id the GUID of the Design Studio installation which is only necessary when using the :remote :api_mode
     def initialize(id, secret, options = {})
       opts = options.dup 
       @id = id
@@ -121,7 +123,6 @@ module Ketra
     end
     
     def url(endpoint)
-      #TODO implement additional api modes
       case options[:api_mode]
       when :remote
         base = remote_url

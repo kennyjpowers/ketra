@@ -106,7 +106,7 @@ describe Ketra::Client do
     end
   end
   
-  context "when the hub is discoverable" do
+  context "when using :local :api_mode and the hub is discoverable" do
     let(:parsed_discovery_resp) do
         response_hash = { "content" =>
                           [
@@ -190,6 +190,32 @@ describe Ketra::Client do
         expect(token_double).to receive(:post) { resp_double }
         expect( subject.post endpoint, post_params ).to eq success_resp
       end
+    end
+  end
+
+  context "when using :remote :api_mode" do
+    let(:installation_id) { 'fake-install-guid' }
+    let(:hub_serial) { 'fake_serial' }
+    let(:token_double) { instance_double(OAuth2::AccessToken) }
+    let(:url_match) { /.*#{installation_id}.*#{hub_serial}/ }
+    let(:resp_double) { instance_double(OAuth2::Response) }
+    let(:success_resp) { { "success" => true } }
+    let(:json_success) { JSON.generate(success_resp) }
+    before(:each) do
+      subject.options[:api_mode] = :remote
+      subject.options[:installation_id] = installation_id
+      subject.options[:hub_serial] = hub_serial
+      allow(subject).to receive(:access_token) { token_double }
+      allow(resp_double).to receive(:body) { json_success }
+    end
+    it "#get uses correct :installation_id and :hub_serial options in url" do
+      expect(token_double).to receive(:get).with(url_match, anything()) { resp_double }
+      subject.get ''
+    end
+
+    it "#post uses correct :installation_id and :hub_serial options in url" do
+      expect(token_double).to receive(:post).with(url_match, anything()) { resp_double }
+      subject.post '', {}
     end
   end
 end
