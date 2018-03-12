@@ -48,6 +48,13 @@ access_token = Ketra.client.access_token
 Ketra.client.authorize(:token => 'YOUR ACCESS TOKEN')
 ```
 
+### Configure Client to use the hub API remotely
+```ruby
+Ketra.client.options[:api_mode] = :remote
+Ketra.client.options[:installation_id] = 'YOUR INSTALLATION ID'
+Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
+```
+
 ### Commands
 
 All commands require authentication and having the :hub_serial option set.
