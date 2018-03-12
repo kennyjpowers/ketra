@@ -198,6 +198,7 @@ describe Ketra::Client do
     let(:hub_serial) { 'fake_serial' }
     let(:token_double) { instance_double(OAuth2::AccessToken) }
     let(:url_match) { /.*#{installation_id}.*#{hub_serial}/ }
+    let(:test_url_match) { /internal/ }
     let(:resp_double) { instance_double(OAuth2::Response) }
     let(:success_resp) { { "success" => true } }
     let(:json_success) { JSON.generate(success_resp) }
@@ -216,6 +217,12 @@ describe Ketra::Client do
     it "#post uses correct :installation_id and :hub_serial options in url" do
       expect(token_double).to receive(:post).with(url_match, anything()) { resp_double }
       subject.post '', {}
+    end
+
+    it ":test :server option works" do
+      subject.options[:server] = :test
+      expect(token_double).to receive(:get).with(test_url_match, anything()) { resp_double }
+      subject.get ''
     end
   end
 end
