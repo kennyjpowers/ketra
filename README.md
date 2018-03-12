@@ -48,21 +48,26 @@ access_token = Ketra.client.access_token
 Ketra.client.authorize(:token => 'YOUR ACCESS TOKEN')
 ```
 
-### Configure Client to use the hub API remotely
+### Remote API Configuration
 ```ruby
 Ketra.client.options[:api_mode] = :remote
 Ketra.client.options[:installation_id] = 'YOUR INSTALLATION ID'
 Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
 ```
 
+### Local API Configuration 
+```ruby
+Ketra.client.options[:api_mode] = :local #optional since :local is the default
+Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
+```
+
 ### Commands
 
-All commands require authentication and having the :hub_serial option set.
+All commands require authentication and the correct configuration for either remote or local API mode.
 
 #### Keypad Buttons
 
 ```ruby
-Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
 Ketra::Commands.activate_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
 Ketra::Commands.deactivate_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
 Ketra::Commands.push_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
@@ -71,7 +76,6 @@ Ketra::Commands.push_button('YOUR KEYPAD NAME', 'YOUR BUTTON NAME')
 #### Queries
 
 ```ruby
-Ketra.client.options[:hub_serial] = 'YOUR HUB SERIAL NUMBER'
 Ketra::Commands.keypads
 Ketra::Commands.groups
 ```
